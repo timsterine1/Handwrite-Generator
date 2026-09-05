@@ -788,6 +788,59 @@ body {
   cursor: pointer;
 }
 
+/* Schreib-Ordentlichkeit Master Slider */
+.highlight-control {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem;
+}
+
+.neatness-badge {
+  background: var(--primary-glow);
+  color: #93c5fd !important;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  font-weight: 600;
+}
+
+.slider-scale-hints {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  padding: 2px 4px 0 4px;
+}
+
+/* Fine-tuning Accordion */
+.fine-tuning-details {
+  background: var(--bg-app);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.6rem;
+}
+
+.fine-tuning-details summary {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+}
+
+.fine-tuning-details summary:hover {
+  color: #fff;
+}
+
+.fine-tuning-body {
+  padding-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
 /* Pen Colors */
 .pen-color-presets {
   display: flex;

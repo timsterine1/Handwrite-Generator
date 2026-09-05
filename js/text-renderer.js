@@ -24,14 +24,15 @@ class TextRenderer {
 
     // Standard-Parameter
     this.options = {
+      neatness: 80, // 0 (sehr eilig/flüchtig) bis 100 (perfekte Schönschrift)
       fontSize: 28,
       lineHeight: 46,
       letterSpacing: 2,
       wordSpacing: 18,
       penColor: '#1b3f8b',
       penThickness: 1.2,
-      jitterPos: 2,
-      jitterRot: 1.5,
+      jitterPos: 1.5,
+      jitterRot: 1.0,
       alternateVars: true,
       paperStyle: 'lined',
       seed: Math.random()
@@ -215,10 +216,22 @@ class TextRenderer {
     // Differenz Baseline - MeanLine = 117px
     const refScale = opt.fontSize / 117;
 
+    // Ordentlichkeit: 0 (sehr eilig/flüchtig) bis 100 (perfekte Schönschrift)
+    const neatness = typeof opt.neatness === 'number' ? opt.neatness : 80;
+    const disorder = Math.max(0, Math.min(1, (100 - neatness) / 100));
+
+    // Effektive Abweichungen skaliert nach Ordentlichkeit
+    const effectiveJitterPos = opt.jitterPos * disorder * 1.5;
+    const effectiveJitterRot = opt.jitterRot * disorder * 1.5;
+    const effectiveScaleWobble = 0.05 * disorder;
+    const effectiveWordSpaceJitter = 4 * disorder;
+    const lineDriftIntensity = 7 * disorder;
+
     let cursorX = leftMargin;
     let cursorY = topMargin;
     let charsRendered = 0;
     let variationsCounter = 0;
+    let currentLineSlope = (Math.random() - 0.45) * lineDriftIntensity;
 
     // Absätze aufteilen
     const paragraphs = text.split('\n');
@@ -249,6 +262,7 @@ class TextRenderer {
         if (cursorX + wordWidth > leftMargin + contentWidth && cursorX > leftMargin) {
           cursorX = leftMargin;
           cursorY += opt.lineHeight;
+          currentLineSlope = (Math.random() - 0.45) * lineDriftIntensity;
 
           // Seitenende erreicht?
           if (cursorY > this.pageHeight - bottomMargin) {
@@ -262,10 +276,13 @@ class TextRenderer {
           const char = word[c];
           const glyph = this.pickGlyphVariation(char);
 
-          // Zufälliges Rauschen (Jitter)
-          const jitterY = (Math.random() - 0.5) * opt.jitterPos * 2;
-          const jitterAngle = (Math.random() - 0.5) * (opt.jitterRot * (Math.PI / 180));
-          const scaleWobble = 1 + (Math.random() - 0.5) * 0.04;
+          // Natürliche Schreib-Abweichungen
+          const lineProgress = Math.min(1, Math.max(0, (cursorX - leftMargin) / contentWidth));
+          const lineDriftY = currentLineSlope * lineProgress;
+
+          const jitterY = (Math.random() - 0.5) * effectiveJitterPos * 2 + lineDriftY;
+          const jitterAngle = (Math.random() - 0.5) * (effectiveJitterRot * (Math.PI / 180));
+          const scaleWobble = 1 + (Math.random() - 0.5) * effectiveScaleWobble;
           const currentScale = refScale * scaleWobble;
 
           if (glyph && glyph.strokes) {
@@ -297,14 +314,15 @@ class TextRenderer {
           charsRendered++;
         }
 
-        // Wortabstand addieren (mit leichtem Zufallsrauschen)
-        const wordSpaceJitter = (Math.random() - 0.5) * 3;
+        // Wortabstand addieren (mit leichtem Zufallsrauschen je nach Ordentlichkeit)
+        const wordSpaceJitter = (Math.random() - 0.5) * effectiveWordSpaceJitter;
         cursorX += Math.max(8, opt.wordSpacing + wordSpaceJitter);
       }
 
       // Zeilenumbruch nach Absatz
       cursorX = leftMargin;
       cursorY += opt.lineHeight;
+      currentLineSlope = (Math.random() - 0.45) * lineDriftIntensity;
 
       if (cursorY > this.pageHeight - bottomMargin) {
         break;

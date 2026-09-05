@@ -66,6 +66,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const valWordSpacing = document.getElementById('val-word-spacing');
   const sliderPenThickness = document.getElementById('slider-pen-thickness');
   const valPenThickness = document.getElementById('val-pen-thickness');
+  const sliderNeatness = document.getElementById('slider-neatness');
+  const valNeatness = document.getElementById('val-neatness');
   const sliderJitterPos = document.getElementById('slider-jitter-pos');
   const valJitterPos = document.getElementById('val-jitter-pos');
   const sliderJitterRot = document.getElementById('slider-jitter-rot');
@@ -408,6 +410,25 @@ Dadurch sieht der Text täuschend echt aus wie von Hand geschrieben – mit leic
   bindSlider(sliderLetterSpacing, valLetterSpacing, 'px', 'letterSpacing');
   bindSlider(sliderWordSpacing, valWordSpacing, 'px', 'wordSpacing');
   bindSlider(sliderPenThickness, valPenThickness, 'x', 'penThickness');
+
+  // Schreib-Ordentlichkeit Slider
+  function getNeatnessLabel(val) {
+    if (val >= 95) return `Perfekte Schönschrift (${val}%)`;
+    if (val >= 75) return `Sehr ordentlich (${val}%)`;
+    if (val >= 55) return `Natürlich / Ausgewogen (${val}%)`;
+    if (val >= 35) return `Locker / Schwungvoll (${val}%)`;
+    if (val >= 15) return `Zügig / Alltag (${val}%)`;
+    return `Eilig / Flüchtig (${val}%)`;
+  }
+
+  if (sliderNeatness && valNeatness) {
+    sliderNeatness.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      valNeatness.textContent = getNeatnessLabel(val);
+      renderer.setOptions({ neatness: val });
+      renderGeneratedText();
+    });
+  }
   bindSlider(sliderJitterPos, valJitterPos, '', 'jitterPos', (v) => {
     valJitterPos.textContent = v === 0 ? 'Aus' : (v <= 2 ? 'Dezent' : 'Stark');
     return v;
