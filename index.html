@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handschrift-Generator | Eigene Handschrift mit Mehrfach-Variationen</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="logo-icon">✍️</div>
+        <div class="brand-text">
+          <h1>Handschrift-Generator</h1>
+          <span class="badge-subtitle">Mehrfach-Variationen Studio</span>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="tab-btn active" id="tab-btn-record" data-tab="tab-record">
+          <span class="icon">✏️</span>
+          <span>1. Handschrift erfassen</span>
+        </button>
+        <button class="tab-btn" id="tab-btn-generate" data-tab="tab-generate">
+          <span class="icon">📄</span>
+          <span>2. Text umwandeln</span>
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-sm" id="btn-load-sample" title="Beispiel-Handschrift mit mehreren Variationen laden">
+          ✨ Beispiel laden
+        </button>
+        <button class="btn btn-secondary btn-sm" id="btn-export-profile" title="Aktuelle Handschrift als JSON-Datei sichern">
+          💾 Profil exportieren
+        </button>
+        <label class="btn btn-secondary btn-sm file-input-label" title="Gespeichertes Profil laden">
+          📂 Profil laden
+          <input type="file" id="file-import-profile" accept=".json" style="display:none;">
+        </label>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- ================= TAB 1: HANDSCHRIFT ERFASSEN ================= -->
+      <section class="tab-panel active" id="tab-record">
+        <div class="record-layout">
+          
+          <!-- Left Column: Character Grid -->
+          <aside class="char-sidebar">
+            <div class="sidebar-header">
+              <h3>Buchstaben-Übersicht</h3>
+              <span class="stats-counter" id="stats-total-recorded">0 Zeichen erfasst</span>
+            </div>
+
+            <div class="category-pills" id="category-pills">
+              <button class="pill active" data-cat="lowercase">a-z</button>
+              <button class="pill" data-cat="uppercase">A-Z</button>
+              <button class="pill" data-cat="umlauts">Umlaute</button>
+              <button class="pill" data-cat="digits">0-9</button>
+              <button class="pill" data-cat="punctuation">Zeichen</button>
+            </div>
+
+            <div class="char-grid-container">
+              <div class="char-grid" id="char-grid">
+                <!-- Dynamically populated character cards -->
+              </div>
+            </div>
+
+            <div class="sidebar-footer">
+              <p class="hint-text">Tipp: Je mehr Variationen (1-10) du pro Buchstabe zeichnest, desto natürlicher wirkt später dein Text!</p>
+            </div>
+          </aside>
+
+          <!-- Center Column: Active Character & Drawing Canvas -->
+          <div class="canvas-workspace">
+            <div class="workspace-card">
+              
+              <!-- Character & Slot Selector Header -->
+              <div class="active-char-banner">
+                <div class="char-display-group">
+                  <div class="big-active-char" id="active-char-display">a</div>
+                  <div class="active-char-meta">
+                    <h2 id="active-char-title">Buchstabe „a“</h2>
+                    <span class="meta-desc" id="active-char-desc">Kleinbuchstabe &bull; <span id="active-char-var-count">0 von 10</span> Variationen</span>
+                  </div>
+                </div>
+
+                <div class="char-navigation-arrows">
+                  <button class="btn btn-icon" id="btn-prev-char" title="Vorheriger Buchstabe (Pfeiltaste links)">‹</button>
+                  <button class="btn btn-icon" id="btn-next-char" title="Nächster Buchstabe (Pfeiltaste rechts)">›</button>
+                </div>
+              </div>
+
+              <!-- 10 Variation Slots Picker -->
+              <div class="variation-picker">
+                <div class="variation-picker-header">
+                  <span class="label">Variationen für diesen Buchstaben (bis zu 10):</span>
+                  <div class="auto-advance-toggle">
+                    <label class="switch-label">
+                      <input type="checkbox" id="chk-auto-advance" checked>
+                      <span class="slider-toggle"></span>
+                      Auto-Weiter nach dem Speichern
+                    </label>
+                  </div>
+                </div>
+
+                <div class="variation-slots" id="variation-slots">
+                  <!-- 10 variation slot buttons generated in JS -->
+                </div>
+              </div>
+
+              <!-- Drawing Canvas Box with Guidelines -->
+              <div class="canvas-drawing-container">
+                <div class="canvas-wrapper" id="canvas-wrapper">
+                  <!-- Guideline Overlays -->
+                  <div class="guideline guideline-ascender" title="Oberlänge"><span>Oberlänge</span></div>
+                  <div class="guideline guideline-cap" title="Großbuchstaben"><span>Großbuchstaben</span></div>
+                  <div class="guideline guideline-mean" title="Mittellinie / x-Höhe"><span>Mittellinie (x)</span></div>
+                  <div class="guideline guideline-baseline" title="Grundlinie"><span>Grundlinie</span></div>
+                  <div class="guideline guideline-descender" title="Unterlänge"><span>Unterlänge</span></div>
+
+                  <!-- Faint Reference Ghost / Watermark -->
+                  <div class="ghost-guide" id="ghost-guide">a</div>
+
+                  <!-- The interactive drawing canvas -->
+                  <canvas id="paint-canvas" width="600" height="450"></canvas>
+                </div>
+
+                <!-- Canvas Control Bar -->
+                <div class="canvas-toolbar">
+                  <div class="toolbar-group">
+                    <button class="btn btn-icon-sm btn-tool" id="btn-undo" title="Letzten Strich rückgängig machen (Strg+Z)">
+                      ↩ Rückgängig
+                    </button>
+                    <button class="btn btn-icon-sm btn-tool" id="btn-clear" title="Leeren (Entf)">
+                      🗑️ Leeren
+                    </button>
+                    <button class="btn btn-icon-sm btn-tool" id="btn-delete-slot" title="Diese Variation löschen">
+                      ❌ Variation löschen
+                    </button>
+                  </div>
+
+                  <div class="toolbar-group">
+                    <label class="tool-label">
+                      <span>Strichstärke:</span>
+                      <input type="range" id="input-stroke-width" min="2" max="14" value="5" step="0.5">
+                      <span id="stroke-width-val">5px</span>
+                    </label>
+
+                    <label class="tool-label switch-inline">
+                      <input type="checkbox" id="chk-show-ghost" checked>
+                      <span>Hilfs-Buchstabe anzeigen</span>
+                    </label>
+                  </div>
+
+                  <div class="toolbar-group actions-right">
+                    <button class="btn btn-primary" id="btn-save-slot" title="Variation speichern & weiter (Leertaste oder Enter)">
+                      💾 Variation speichern
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Calibration & Info Bar -->
+              <div class="canvas-footer-hints">
+                <div class="hint-item">
+                  <span class="kbd">Maus / Touch / Stift</span>
+                  <span>Unterstützt Apple Pencil, Stylus & Touch mit automatischer Linien-Glättung.</span>
+                </div>
+                <div class="hint-item">
+                  <span class="kbd">Enter / Leertaste</span>
+                  <span>Speichert die aktuelle Variation und schaltet zum nächsten Slot weiter.</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: TEXT UMWANDELN ================= -->
+      <section class="tab-panel" id="tab-generate">
+        <div class="generator-layout">
+          
+          <!-- Generator Sidebar: Text & Styling Settings -->
+          <aside class="generator-controls">
+            
+            <div class="control-section">
+              <div class="section-title">
+                <h3>📝 Dein Text</h3>
+                <button class="btn-link" id="btn-insert-sample-text">Beispieltext einfügen</button>
+              </div>
+              <textarea id="input-text" placeholder="Füge hier deinen Text ein, der in deine Handschrift umgewandelt werden soll..."></textarea>
+            </div>
+
+            <div class="control-section">
+              <h3>🎨 Stift & Tinte</h3>
+              
+              <div class="control-row">
+                <label>Stift-Art / Farbe:</label>
+                <div class="pen-color-presets" id="pen-color-presets">
+                  <button class="color-dot active" data-color="#1b3f8b" title="Füller Königsblau" style="background:#1b3f8b;"></button>
+                  <button class="color-dot" data-color="#112244" title="Kugelschreiber Dunkelblau" style="background:#112244;"></button>
+                  <button class="color-dot" data-color="#1c1c1e" title="Tintenschwarz" style="background:#1c1c1e;"></button>
+                  <button class="color-dot" data-color="#4a4a4f" title="Bleistift Grau" style="background:#4a4a4f;"></button>
+                  <button class="color-dot" data-color="#8b1b1b" title="Roter Korrekturstift" style="background:#8b1b1b;"></button>
+                  <input type="color" id="custom-pen-color" value="#1b3f8b" title="Freie Farbwahl">
+                </div>
+              </div>
+
+              <div class="control-row">
+                <div class="label-with-val">
+                  <label for="slider-pen-thickness">Stift-Stärke:</label>
+                  <span id="val-pen-thickness">1.2x</span>
+                </div>
+                <input type="range" id="slider-pen-thickness" min="0.6" max="2.4" step="0.1" value="1.2">
+              </div>
+            </div>
+
+            <div class="control-section">
+              <h3>📏 Typografie & Layout</h3>
+
+              <div class="control-row">
+                <div class="label-with-val">
+                  <label for="slider-font-size">Schriftgröße:</label>
+                  <span id="val-font-size">28px</span>
+                </div>
+                <input type="range" id="slider-font-size" min="16" max="52" step="1" value="28">
+              </div>
+
+              <div class="control-row">
+                <div class="label-with-val">
+                  <label for="slider-line-height">Zeilenabstand:</label>
+                  <span id="val-line-height">44px</span>
+                </div>
+                <input type="range" id="slider-line-height" min="26" max="80" step="1" value="44">
+              </div>
+
+              <div class="control-row">
+                <div class="label-with-val">
+                  <label for="slider-letter-spacing">Buchstabenabstand:</label>
+                  <span id="val-letter-spacing">2px</span>
+                </div>
+                <input type="range" id="slider-letter-spacing" min="-4" max="15" step="1" value="2">
+              </div>
+
+              <div class="control-row">
+                <div class="label-with-val">
+                  <label for="slider-word-spacing">Wortabstand:</label>
+                  <span id="val-word-spacing">18px</span>
+                </div>
+                <input type="range" id="slider-word-spacing" min="8" max="45" step="1" value="18">
+              </div>
+            </div>
+
+            <div class="control-section">
+              <h3>🎲 Natürliche Handschrift-Effekte</h3>
+              
+              <div class="control-row">
+                <div class="label-with-val">
+                  <label for="slider-jitter-pos" title="Zufälliges leichtes Tanzen der Buchstaben auf der Grundlinie">
+                    Linien-Abweichung (Jitter):
+                  </label>
+                  <span id="val-jitter-pos">Mittel</span>
+                </div>
+                <input type="range" id="slider-jitter-pos" min="0" max="5" step="0.5" value="2">
+              </div>
+
+              <div class="control-row">
+                <div class="label-with-val">
+                  <label for="slider-jitter-rot" title="Leichte zufällige Neigungswinkel">
+                    Neigungs-Variation:
+                  </label>
+                  <span id="val-jitter-rot">Leicht</span>
+                </div>
+                <input type="range" id="slider-jitter-rot" min="0" max="4" step="0.5" value="1.5">
+              </div>
+
+              <div class="control-row">
+                <label class="switch-label">
+                  <input type="checkbox" id="chk-alternate-vars" checked>
+                  <span class="slider-toggle"></span>
+                  Gleiche Nachbarbuchstaben vermeiden (immer rotieren)
+                </label>
+              </div>
+            </div>
+
+            <div class="control-section">
+              <h3>📄 Papier-Hintergrund</h3>
+
+              <div class="paper-presets" id="paper-presets">
+                <button class="paper-btn active" data-paper="lined">
+                  <div class="mini-paper mini-lined"></div>
+                  <span>Liniert</span>
+                </button>
+                <button class="paper-btn" data-paper="grid">
+                  <div class="mini-paper mini-grid"></div>
+                  <span>Kariert</span>
+                </button>
+                <button class="paper-btn" data-paper="blank">
+                  <div class="mini-paper mini-blank"></div>
+                  <span>Blanko Weiß</span>
+                </button>
+                <button class="paper-btn" data-paper="vintage">
+                  <div class="mini-paper mini-vintage"></div>
+                  <span>Pergament</span>
+                </button>
+                <button class="paper-btn" data-paper="yellow-pad">
+                  <div class="mini-paper mini-yellow"></div>
+                  <span>Collegeblock</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="control-section export-section">
+              <button class="btn btn-primary btn-lg w-full" id="btn-export-image">
+                📥 Als Bild herunterladen (PNG)
+              </button>
+              <button class="btn btn-secondary btn-lg w-full" id="btn-print-page">
+                🖨️ Drucken / Als PDF speichern
+              </button>
+            </div>
+
+          </aside>
+
+          <!-- Right Column: Live Sheet of Paper Preview -->
+          <div class="preview-area">
+            <div class="preview-toolbar">
+              <div class="preview-meta">
+                <span class="page-indicator" id="page-indicator">Seite 1 von 1</span>
+                <span class="variation-stat-badge" id="render-stats">Genutzte Variationen: aktiv</span>
+              </div>
+              <div class="preview-actions">
+                <button class="btn btn-sm btn-secondary" id="btn-reroll-variations" title="Neu würfeln: Wählt andere Variationen für alle Buchstaben aus">
+                  🎲 Variationen neu würfeln
+                </button>
+                <button class="btn btn-sm btn-secondary" id="btn-zoom-fit">Ansicht anpassen</button>
+              </div>
+            </div>
+
+            <div class="paper-viewport" id="paper-viewport">
+              <div class="paper-sheet-container" id="paper-sheet-container">
+                <!-- Dynamically populated page canvas/elements -->
+                <canvas id="render-canvas" width="1240" height="1754"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="js/glyph-store.js"></script>
+  <script src="js/canvas-recorder.js"></script>
+  <script src="js/sample-font.js"></script>
+  <script src="js/text-renderer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
