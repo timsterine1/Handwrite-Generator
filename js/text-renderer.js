@@ -104,6 +104,28 @@ class TextRenderer {
         ctx.stroke();
       }
 
+    } else if (style === 'dark-grid') {
+      // GoodNotes / iPad Dunkles Karopapier (wie im Screenshot)
+      ctx.fillStyle = '#0e1117';
+      ctx.fillRect(0, 0, w, h);
+
+      const gridSize = 28;
+      ctx.strokeStyle = '#1e2633';
+      ctx.lineWidth = 1.2;
+
+      for (let x = 40; x <= w - 40; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 40);
+        ctx.lineTo(x, h - 40);
+        ctx.stroke();
+      }
+      for (let y = 40; y <= h - 40; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(40, y);
+        ctx.lineTo(w - 40, y);
+        ctx.stroke();
+      }
+
     } else if (style === 'yellow-pad') {
       // Collegeblock Gelb
       ctx.fillStyle = '#fef9c3';

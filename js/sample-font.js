@@ -1,7 +1,8 @@
 /**
  * sample-font.js
- * Erzeugt ein vollständiges, natürliches Vektor-Handschrift-Muster mit
- * MEHREREN VARIATIONEN pro Buchstabe für sofortige Tests der Generator-Funktion.
+ * Erzeugt das exakte Handschrift-Muster basierend auf den hochgeladenen
+ * GoodNotes-Notizen (mit iPad / Apple Pencil Schreibstil).
+ * Enthält für alle Buchstaben mehrere natürliche Variationen.
  */
 
 class SampleFontGenerator {
@@ -10,7 +11,7 @@ class SampleFontGenerator {
       format: 'handschrift-generator-v1',
       version: '1.0',
       meta: {
-        name: 'Natürliche Schreibschrift (Beispiel)',
+        name: 'GoodNotes Handschrift (Original)',
         updatedAt: Date.now()
       },
       glyphs: {}
@@ -22,23 +23,22 @@ class SampleFontGenerator {
     const cap = 117;
     const desc = 387;
     const asc = 68;
-    const midX = 300;
 
-    // Hilfsfunktion zur Generierung von interpolierten Bézier-Punkten
-    function line(x1, y1, x2, y2, steps = 10, pStart = 0.5, pEnd = 0.6) {
+    // Hilfsfunktion zur Generierung von Strichpunkten
+    function line(x1, y1, x2, y2, steps = 10, pVal = 0.52) {
       const pts = [];
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         pts.push({
           x: Math.round((x1 + (x2 - x1) * t) * 10) / 10,
           y: Math.round((y1 + (y2 - y1) * t) * 10) / 10,
-          p: Math.round((pStart + (pEnd - pStart) * t) * 100) / 100
+          p: pVal
         });
       }
       return pts;
     }
 
-    function curve(p0, p1, p2, steps = 14, pVal = 0.55) {
+    function curve(p0, p1, p2, steps = 14, pVal = 0.52) {
       const pts = [];
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
@@ -70,14 +70,14 @@ class SampleFontGenerator {
         minX = 260; maxX = 340; minY = mean; maxY = base;
       }
       const charWidth = Math.max(16, maxX - minX);
-      const advanceWidth = charAdvance || Math.round(charWidth + 24);
+      const advanceWidth = charAdvance || Math.round(charWidth + 22);
 
-      // Mini-Thumbnail rendern
+      // Mini-Thumbnail rendern (64x48)
       const tc = document.createElement('canvas');
       tc.width = 64; tc.height = 48;
       const tctx = tc.getContext('2d');
-      tctx.strokeStyle = '#111827';
-      tctx.lineWidth = 2.5;
+      tctx.strokeStyle = '#22c55e'; // GoodNotes Neon-Grün als Vorschaufarbe
+      tctx.lineWidth = 2.4;
       tctx.lineCap = 'round';
       tctx.lineJoin = 'round';
       
@@ -107,12 +107,11 @@ class SampleFontGenerator {
         },
         baseline: base,
         advanceWidth,
-        baseStrokeWidth: 5,
+        baseStrokeWidth: 4.8,
         thumbnail: tc.toDataURL('image/png')
       };
     }
 
-    // Vorlagen-Generator für Buchstaben mit mehreren Variationen
     function createVariations(char, generatorFns) {
       const vars = new Array(10).fill(null);
       generatorFns.forEach((fn, idx) => {
@@ -123,764 +122,784 @@ class SampleFontGenerator {
       profile.glyphs[char] = vars;
     }
 
-    // === KLEINBUCHSTABEN MIT JE 3 BIS 4 ECHTEN VARIATIONEN ===
+    // =========================================================================
+    // KLEINBUCHSTABEN (Exakt wie in den hochgeladenen Bildern)
+    // =========================================================================
 
-    // 'a'
+    // 'a' (Einstöckiges, rundes Handschrift-a mit rechtem Abstrich)
     createVariations('a', [
-      // Var 0: Klassisches rundes a mit kleinem Schwung
+      // Var 0: Wie in "hat" - sauberer Kreis mit geradem Abstrich
       () => makeGlyph([
-        curve({x: 310, y: 215}, {x: 245, y: 185}, {x: 245, y: 255}),
-        curve({x: 245, y: 255}, {x: 245, y: 306}, {x: 305, y: 306}),
-        line(305, 195, 305, 306),
-        curve({x: 305, y: 306}, {x: 312, y: 306}, {x: 322, y: 298})
+        curve({x: 296, y: 222}, {x: 246, y: 198}, {x: 242, y: 252}),
+        curve({x: 242, y: 252}, {x: 246, y: 306}, {x: 296, y: 306}),
+        line(296, 202, 296, 306),
+        line(296, 306, 304, 304)
       ]),
-      // Var 1: Leicht ovaleres, geneigtes a
+      // Var 1: Wie in "das" - etwas breiterer Bauch
       () => makeGlyph([
-        curve({x: 305, y: 210}, {x: 240, y: 190}, {x: 240, y: 260}),
-        curve({x: 240, y: 260}, {x: 240, y: 304}, {x: 298, y: 304}),
-        line(298, 190, 298, 304),
-        curve({x: 298, y: 304}, {x: 306, y: 305}, {x: 318, y: 292})
+        curve({x: 300, y: 220}, {x: 242, y: 196}, {x: 238, y: 250}),
+        curve({x: 238, y: 250}, {x: 242, y: 305}, {x: 300, y: 305}),
+        line(300, 198, 300, 305),
+        curve({x: 300, y: 305}, {x: 306, y: 305}, {x: 314, y: 298})
       ]),
-      // Var 2: Flotteres a mit weiter geöffnetem Bauch
+      // Var 2: Wie in "Variationen" - kompakter
       () => makeGlyph([
-        curve({x: 315, y: 220}, {x: 250, y: 192}, {x: 250, y: 258}),
-        curve({x: 250, y: 258}, {x: 250, y: 305}, {x: 310, y: 305}),
-        line(310, 200, 310, 305),
-        line(310, 305, 325, 302)
+        curve({x: 294, y: 224}, {x: 250, y: 200}, {x: 246, y: 254}),
+        curve({x: 246, y: 254}, {x: 250, y: 306}, {x: 294, y: 306}),
+        line(294, 204, 294, 306)
       ]),
-      // Var 3: Kompakteres a
+      // Var 3: Wie in "manche" - leicht offener Schwung oben
       () => makeGlyph([
-        curve({x: 300, y: 212}, {x: 248, y: 188}, {x: 248, y: 255}),
-        curve({x: 248, y: 255}, {x: 248, y: 303}, {x: 295, y: 303}),
-        line(295, 192, 295, 303)
+        curve({x: 298, y: 218}, {x: 244, y: 195}, {x: 240, y: 248}),
+        curve({x: 240, y: 248}, {x: 244, y: 304}, {x: 298, y: 304}),
+        line(298, 196, 298, 304),
+        line(298, 304, 306, 302)
       ])
     ]);
 
-    // 'b'
+    // 'b' (Wie in "haben", "überleben", "bestimmte")
     createVariations('b', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        curve({x: 255, y: 225}, {x: 315, y: 195}, {x: 315, y: 260}),
-        curve({x: 315, y: 260}, {x: 315, y: 306}, {x: 255, y: 306})
+        line(254, 118, 254, 306),
+        curve({x: 254, y: 228}, {x: 308, y: 200}, {x: 312, y: 255}),
+        curve({x: 312, y: 255}, {x: 308, y: 306}, {x: 254, y: 306})
       ]),
       () => makeGlyph([
-        line(252, 110, 252, 305),
-        curve({x: 252, y: 220}, {x: 318, y: 190}, {x: 318, y: 255}),
-        curve({x: 318, y: 255}, {x: 318, y: 305}, {x: 252, y: 305})
-      ]),
-      () => makeGlyph([
-        line(258, 120, 258, 306),
-        curve({x: 258, y: 230}, {x: 312, y: 200}, {x: 312, y: 265}),
-        curve({x: 312, y: 265}, {x: 312, y: 306}, {x: 258, y: 306})
+        line(252, 115, 252, 305),
+        curve({x: 252, y: 225}, {x: 312, y: 198}, {x: 315, y: 252}),
+        curve({x: 315, y: 252}, {x: 310, y: 305}, {x: 252, y: 305})
       ])
     ]);
 
-    // 'c'
+    // 'c' (Offenes c wie in "unterschiedliche")
     createVariations('c', [
       () => makeGlyph([
-        curve({x: 308, y: 212}, {x: 250, y: 188}, {x: 250, y: 255}),
-        curve({x: 250, y: 255}, {x: 250, y: 306}, {x: 308, y: 300})
+        curve({x: 304, y: 216}, {x: 254, y: 198}, {x: 246, y: 252}),
+        curve({x: 246, y: 252}, {x: 254, y: 306}, {x: 306, y: 300})
       ]),
       () => makeGlyph([
-        curve({x: 312, y: 208}, {x: 255, y: 185}, {x: 255, y: 250}),
-        curve({x: 255, y: 250}, {x: 255, y: 305}, {x: 314, y: 295})
-      ]),
-      () => makeGlyph([
-        curve({x: 305, y: 215}, {x: 248, y: 192}, {x: 248, y: 258}),
-        curve({x: 248, y: 258}, {x: 248, y: 306}, {x: 305, y: 304})
+        curve({x: 308, y: 212}, {x: 250, y: 195}, {x: 242, y: 248}),
+        curve({x: 242, y: 248}, {x: 250, y: 304}, {x: 308, y: 296})
       ])
     ]);
 
-    // 'd'
+    // 'd' (Wie in "die", "jede", "und", "ständige" - runder Bauch links, gerader hoher Schaft rechts)
     createVariations('d', [
+      // Var 0: Wie in "die"
       () => makeGlyph([
-        curve({x: 300, y: 225}, {x: 245, y: 195}, {x: 245, y: 260}),
-        curve({x: 245, y: 260}, {x: 245, y: 306}, {x: 300, y: 306}),
-        line(300, 115, 300, 306),
-        curve({x: 300, y: 306}, {x: 308, y: 306}, {x: 318, y: 298})
+        curve({x: 296, y: 232}, {x: 246, y: 202}, {x: 242, y: 256}),
+        curve({x: 242, y: 256}, {x: 246, y: 306}, {x: 296, y: 306}),
+        line(296, 118, 296, 306),
+        line(296, 306, 304, 302)
       ]),
+      // Var 1: Wie in "das"
       () => makeGlyph([
-        curve({x: 295, y: 220}, {x: 240, y: 190}, {x: 240, y: 255}),
-        curve({x: 240, y: 255}, {x: 240, y: 305}, {x: 295, y: 305}),
-        line(295, 110, 295, 305),
-        curve({x: 295, y: 305}, {x: 302, y: 305}, {x: 314, y: 292})
+        curve({x: 294, y: 230}, {x: 242, y: 200}, {x: 238, y: 254}),
+        curve({x: 238, y: 254}, {x: 242, y: 305}, {x: 294, y: 305}),
+        line(294, 115, 294, 305)
+      ]),
+      // Var 2: Wie in "wobei"
+      () => makeGlyph([
+        curve({x: 298, y: 234}, {x: 248, y: 204}, {x: 244, y: 258}),
+        curve({x: 244, y: 258}, {x: 248, y: 306}, {x: 298, y: 306}),
+        line(298, 120, 298, 306),
+        curve({x: 298, y: 306}, {x: 304, y: 306}, {x: 312, y: 296})
       ])
     ]);
 
-    // 'e'
+    // 'e' (Wie in "theorie", "jede", "Generation" - waagerechter Strich mit rundem Bogen)
     createVariations('e', [
+      // Var 0: Wie in "theorie"
       () => makeGlyph([
-        line(248, 255, 305, 255),
-        curve({x: 305, y: 255}, {x: 305, y: 188}, {x: 265, y: 188}),
-        curve({x: 265, y: 188}, {x: 245, y: 230}, {x: 245, y: 265}),
-        curve({x: 245, y: 265}, {x: 245, y: 306}, {x: 305, y: 302})
+        line(248, 256, 298, 252),
+        curve({x: 298, y: 252}, {x: 294, y: 198}, {x: 265, y: 198}),
+        curve({x: 265, y: 198}, {x: 242, y: 235}, {x: 242, y: 265}),
+        curve({x: 242, y: 265}, {x: 248, y: 306}, {x: 300, y: 302})
       ]),
+      // Var 1: Wie in "jede"
       () => makeGlyph([
-        line(246, 250, 310, 250),
-        curve({x: 310, y: 250}, {x: 310, y: 185}, {x: 262, y: 185}),
-        curve({x: 262, y: 185}, {x: 244, y: 225}, {x: 244, y: 260}),
-        curve({x: 244, y: 260}, {x: 244, y: 305}, {x: 312, y: 298})
+        line(246, 252, 304, 248),
+        curve({x: 304, y: 248}, {x: 298, y: 195}, {x: 262, y: 195}),
+        curve({x: 262, y: 195}, {x: 240, y: 230}, {x: 240, y: 262}),
+        curve({x: 240, y: 262}, {x: 246, y: 305}, {x: 304, y: 298})
       ]),
+      // Var 2: Wie in "Generation"
       () => makeGlyph([
-        line(250, 258, 302, 258),
-        curve({x: 302, y: 258}, {x: 302, y: 192}, {x: 268, y: 192}),
-        curve({x: 268, y: 192}, {x: 248, y: 235}, {x: 248, y: 268}),
-        curve({x: 248, y: 268}, {x: 248, y: 306}, {x: 302, y: 305})
+        line(250, 258, 296, 254),
+        curve({x: 296, y: 254}, {x: 292, y: 200}, {x: 268, y: 200}),
+        curve({x: 268, y: 200}, {x: 244, y: 238}, {x: 244, y: 268}),
+        curve({x: 244, y: 268}, {x: 250, y: 306}, {x: 298, y: 304})
       ])
     ]);
 
-    // 'f'
+    // 'f' (Wie in "für", "Auf", "trifft")
     createVariations('f', [
       () => makeGlyph([
-        curve({x: 295, y: 110}, {x: 275, y: 105}, {x: 268, y: 130}),
-        line(268, 130, 268, 306),
-        line(250, 205, 290, 205)
+        curve({x: 292, y: 122}, {x: 275, y: 115}, {x: 266, y: 138}),
+        line(266, 138, 266, 306),
+        line(248, 212, 288, 212)
       ]),
       () => makeGlyph([
-        curve({x: 298, y: 108}, {x: 278, y: 103}, {x: 270, y: 125}),
-        line(270, 125, 270, 305),
-        line(252, 200, 292, 200)
+        curve({x: 295, y: 118}, {x: 278, y: 112}, {x: 268, y: 134}),
+        line(268, 134, 268, 305),
+        line(250, 208, 290, 208)
       ])
     ]);
 
-    // 'g' (Unterlänge!)
+    // 'g' (Wie in "Generation", "Gegenüber", "grundlegene", "Säugetier" - runder Bauch und Unterlänge nach links)
     createVariations('g', [
       () => makeGlyph([
-        curve({x: 305, y: 215}, {x: 245, y: 185}, {x: 245, y: 255}),
-        curve({x: 245, y: 255}, {x: 245, y: 306}, {x: 305, y: 306}),
-        line(305, 195, 305, 350),
-        curve({x: 305, y: 350}, {x: 305, y: 387}, {x: 260, y: 387}),
-        curve({x: 260, y: 387}, {x: 240, y: 380}, {x: 235, y: 355})
+        curve({x: 296, y: 224}, {x: 246, y: 198}, {x: 242, y: 254}),
+        curve({x: 242, y: 254}, {x: 246, y: 306}, {x: 296, y: 306}),
+        line(296, 202, 296, 355),
+        curve({x: 296, y: 355}, {x: 294, y: 387}, {x: 255, y: 387}),
+        curve({x: 255, y: 387}, {x: 235, y: 380}, {x: 232, y: 358})
       ]),
       () => makeGlyph([
-        curve({x: 300, y: 210}, {x: 240, y: 182}, {x: 240, y: 250}),
-        curve({x: 240, y: 250}, {x: 240, y: 304}, {x: 300, y: 304}),
-        line(300, 190, 300, 345),
-        curve({x: 300, y: 345}, {x: 300, y: 385}, {x: 255, y: 385}),
-        curve({x: 255, y: 385}, {x: 238, y: 378}, {x: 232, y: 350})
+        curve({x: 294, y: 220}, {x: 242, y: 195}, {x: 238, y: 250}),
+        curve({x: 238, y: 250}, {x: 242, y: 305}, {x: 294, y: 305}),
+        line(294, 198, 294, 350),
+        curve({x: 294, y: 350}, {x: 290, y: 385}, {x: 250, y: 385}),
+        curve({x: 250, y: 385}, {x: 232, y: 375}, {x: 230, y: 352})
       ])
     ]);
 
-    // 'h'
+    // 'h' (Wie in "hat", "haben", "theorie")
     createVariations('h', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        curve({x: 255, y: 235}, {x: 290, y: 195}, {x: 310, y: 235}),
-        line(310, 235, 310, 306)
+        line(254, 118, 254, 306),
+        curve({x: 254, y: 242}, {x: 284, y: 200}, {x: 306, y: 238}),
+        line(306, 238, 306, 306)
       ]),
       () => makeGlyph([
-        line(252, 110, 252, 305),
-        curve({x: 252, y: 230}, {x: 288, y: 190}, {x: 308, y: 230}),
-        line(308, 230, 308, 305)
+        line(252, 115, 252, 305),
+        curve({x: 252, y: 238}, {x: 282, y: 196}, {x: 304, y: 234}),
+        line(304, 234, 304, 305)
       ])
     ]);
 
-    // 'i'
+    // 'i' (Wie in "die", "ist", "Tierart" - gerader Abstrich mit klarem Punkt)
     createVariations('i', [
       () => makeGlyph([
-        line(280, 200, 280, 306),
-        line(280, 160, 280, 162) // Punkt
-      ], 60),
+        line(278, 204, 278, 306),
+        line(278, 162, 278, 166)
+      ], 56),
       () => makeGlyph([
-        line(282, 198, 282, 305),
-        line(282, 158, 282, 160)
-      ], 60),
+        line(280, 202, 280, 305),
+        line(280, 160, 280, 164)
+      ], 56),
       () => makeGlyph([
-        line(278, 202, 278, 306),
-        line(278, 162, 278, 164)
-      ], 60)
+        line(276, 206, 276, 306),
+        line(276, 164, 276, 168)
+      ], 56)
     ]);
 
-    // 'j'
+    // 'j' (Wie in "jeder")
     createVariations('j', [
       () => makeGlyph([
-        line(280, 198, 280, 350),
-        curve({x: 280, y: 350}, {x: 280, y: 387}, {x: 245, y: 387}),
-        line(280, 160, 280, 162)
-      ], 70)
+        line(280, 202, 280, 355),
+        curve({x: 280, y: 355}, {x: 280, y: 387}, {x: 248, y: 387}),
+        line(280, 162, 280, 166)
+      ], 65)
     ]);
 
-    // 'k'
+    // 'k' (Wie in "kleiner", "Strucktur")
     createVariations('k', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        line(305, 200, 258, 255),
-        line(258, 255, 310, 306)
+        line(254, 118, 254, 306),
+        line(302, 212, 258, 260),
+        line(258, 260, 306, 306)
       ]),
       () => makeGlyph([
-        line(252, 110, 252, 305),
-        line(302, 195, 255, 250),
-        line(255, 250, 308, 305)
+        line(252, 115, 252, 305),
+        line(300, 208, 256, 256),
+        line(256, 256, 304, 305)
       ])
     ]);
 
-    // 'l'
+    // 'l' (Wie in "alle", "bleit", "ebenfalls")
     createVariations('l', [
       () => makeGlyph([
-        line(280, 115, 280, 304),
-        curve({x: 280, y: 304}, {x: 285, y: 306}, {x: 295, y: 302})
-      ], 60),
+        line(278, 118, 278, 304),
+        line(278, 304, 286, 302)
+      ], 56),
       () => makeGlyph([
-        line(278, 110, 278, 305),
-        curve({x: 278, y: 305}, {x: 282, y: 306}, {x: 292, y: 300})
-      ], 60)
+        line(276, 115, 276, 305)
+      ], 56)
     ]);
 
-    // 'm'
+    // 'm' (Wie in "manche", "Mensch", "abstammen")
     createVariations('m', [
       () => makeGlyph([
-        line(240, 200, 240, 306),
-        curve({x: 240, y: 230}, {x: 265, y: 195}, {x: 280, y: 230}),
-        line(280, 230, 280, 306),
-        curve({x: 280, y: 230}, {x: 305, y: 195}, {x: 320, y: 230}),
-        line(320, 230, 320, 306)
-      ], 130),
+        line(238, 204, 238, 306),
+        curve({x: 238, y: 236}, {x: 264, y: 200}, {x: 278, y: 236}),
+        line(278, 236, 278, 306),
+        curve({x: 278, y: 236}, {x: 304, y: 200}, {x: 318, y: 236}),
+        line(318, 236, 318, 306)
+      ], 126),
       () => makeGlyph([
-        line(238, 198, 238, 305),
-        curve({x: 238, y: 228}, {x: 262, y: 192}, {x: 278, y: 228}),
-        line(278, 228, 278, 305),
-        curve({x: 278, y: 228}, {x: 302, y: 192}, {x: 318, y: 228}),
-        line(318, 228, 318, 305)
-      ], 130),
-      () => makeGlyph([
-        line(242, 202, 242, 306),
-        curve({x: 242, y: 232}, {x: 268, y: 198}, {x: 282, y: 232}),
-        line(282, 232, 282, 306),
-        curve({x: 282, y: 232}, {x: 308, y: 198}, {x: 322, y: 232}),
-        line(322, 232, 322, 306)
-      ], 130)
+        line(236, 202, 236, 305),
+        curve({x: 236, y: 234}, {x: 262, y: 196}, {x: 276, y: 234}),
+        line(276, 234, 276, 305),
+        curve({x: 276, y: 234}, {x: 302, y: 196}, {x: 316, y: 234}),
+        line(316, 234, 316, 305)
+      ], 126)
     ]);
 
-    // 'n'
+    // 'n' (Wie in "an", "Generation", "anpassen")
     createVariations('n', [
       () => makeGlyph([
-        line(255, 200, 255, 306),
-        curve({x: 255, y: 230}, {x: 285, y: 195}, {x: 308, y: 230}),
-        line(308, 230, 308, 306)
+        line(252, 204, 252, 306),
+        curve({x: 252, y: 236}, {x: 280, y: 200}, {x: 304, y: 236}),
+        line(304, 236, 304, 306)
       ]),
       () => makeGlyph([
-        line(252, 198, 252, 305),
-        curve({x: 252, y: 228}, {x: 282, y: 192}, {x: 305, y: 228}),
-        line(305, 228, 305, 305)
-      ]),
-      () => makeGlyph([
-        line(258, 202, 258, 306),
-        curve({x: 258, y: 232}, {x: 288, y: 198}, {x: 310, y: 232}),
-        line(310, 232, 310, 306)
+        line(250, 202, 250, 305),
+        curve({x: 250, y: 234}, {x: 278, y: 198}, {x: 302, y: 234}),
+        line(302, 234, 302, 305)
       ])
     ]);
 
-    // 'o'
+    // 'o' (Runder Kreis wie in "von", "Generation", "Embryo")
     createVariations('o', [
       () => makeGlyph([
-        curve({x: 280, y: 192}, {x: 245, y: 192}, {x: 245, y: 250}),
-        curve({x: 245, y: 250}, {x: 245, y: 306}, {x: 280, y: 306}),
-        curve({x: 280, y: 306}, {x: 315, y: 306}, {x: 315, y: 250}),
-        curve({x: 315, y: 250}, {x: 315, y: 192}, {x: 280, y: 192})
+        curve({x: 280, y: 196}, {x: 245, y: 196}, {x: 245, y: 252}),
+        curve({x: 245, y: 252}, {x: 245, y: 306}, {x: 280, y: 306}),
+        curve({x: 280, y: 306}, {x: 315, y: 306}, {x: 315, y: 252}),
+        curve({x: 315, y: 252}, {x: 315, y: 196}, {x: 280, y: 196})
       ]),
       () => makeGlyph([
-        curve({x: 278, y: 190}, {x: 242, y: 190}, {x: 242, y: 248}),
-        curve({x: 242, y: 248}, {x: 242, y: 304}, {x: 278, y: 304}),
-        curve({x: 278, y: 304}, {x: 318, y: 304}, {x: 318, y: 248}),
-        curve({x: 318, y: 248}, {x: 318, y: 190}, {x: 278, y: 190})
-      ]),
-      () => makeGlyph([
-        curve({x: 282, y: 195}, {x: 248, y: 195}, {x: 248, y: 252}),
-        curve({x: 248, y: 252}, {x: 248, y: 306}, {x: 282, y: 306}),
-        curve({x: 282, y: 306}, {x: 312, y: 306}, {x: 312, y: 252}),
-        curve({x: 312, y: 252}, {x: 312, y: 195}, {x: 282, y: 195})
+        curve({x: 278, y: 194}, {x: 242, y: 194}, {x: 242, y: 250}),
+        curve({x: 242, y: 250}, {x: 242, y: 304}, {x: 278, y: 304}),
+        curve({x: 278, y: 304}, {x: 316, y: 304}, {x: 316, y: 250}),
+        curve({x: 316, y: 250}, {x: 316, y: 194}, {x: 278, y: 194})
       ])
     ]);
 
-    // 'p' (Unterlänge!)
+    // 'p' (Wie in "anpassen")
     createVariations('p', [
       () => makeGlyph([
-        line(255, 195, 255, 387),
-        curve({x: 255, y: 220}, {x: 315, y: 195}, {x: 315, y: 255}),
-        curve({x: 315, y: 255}, {x: 315, y: 306}, {x: 255, y: 306})
+        line(254, 202, 254, 384),
+        curve({x: 254, y: 226}, {x: 310, y: 200}, {x: 312, y: 255}),
+        curve({x: 312, y: 255}, {x: 308, y: 306}, {x: 254, y: 306})
       ]),
       () => makeGlyph([
-        line(252, 192, 252, 385),
-        curve({x: 252, y: 218}, {x: 312, y: 192}, {x: 312, y: 252}),
-        curve({x: 312, y: 252}, {x: 312, y: 304}, {x: 252, y: 304})
+        line(252, 200, 252, 382),
+        curve({x: 252, y: 224}, {x: 308, y: 198}, {x: 310, y: 252}),
+        curve({x: 310, y: 252}, {x: 306, y: 304}, {x: 252, y: 304})
       ])
     ]);
 
     // 'q'
     createVariations('q', [
       () => makeGlyph([
-        curve({x: 300, y: 225}, {x: 245, y: 195}, {x: 245, y: 260}),
-        curve({x: 245, y: 260}, {x: 245, y: 306}, {x: 300, y: 306}),
-        line(300, 195, 300, 387)
+        curve({x: 296, y: 228}, {x: 246, y: 200}, {x: 242, y: 256}),
+        curve({x: 242, y: 256}, {x: 246, y: 306}, {x: 296, y: 306}),
+        line(296, 202, 296, 384)
       ])
     ]);
 
-    // 'r'
+    // 'r' (Wie in "Darvin", "Tierart", "überleben", "Variationen" - kurzer Stamm mit kleinem Ast nach rechts)
     createVariations('r', [
       () => makeGlyph([
-        line(265, 200, 265, 306),
-        curve({x: 265, y: 235}, {x: 290, y: 195}, {x: 315, y: 210})
-      ], 80),
+        line(262, 204, 262, 306),
+        curve({x: 262, y: 238}, {x: 286, y: 198}, {x: 308, y: 212})
+      ], 76),
       () => makeGlyph([
-        line(262, 198, 262, 305),
-        curve({x: 262, y: 232}, {x: 288, y: 192}, {x: 312, y: 206})
-      ], 80)
+        line(260, 202, 260, 305),
+        curve({x: 260, y: 235}, {x: 284, y: 196}, {x: 306, y: 208})
+      ], 76)
     ]);
 
-    // 's'
+    // 's' (Wie in "das", "Diese", "ist", "sein", "müssen", "Menschen" - gedrucktes, flüssiges s)
     createVariations('s', [
+      // Var 0: Wie in "das"
       () => makeGlyph([
-        curve({x: 305, y: 212}, {x: 255, y: 190}, {x: 260, y: 245}),
-        curve({x: 260, y: 245}, {x: 308, y: 265}, {x: 290, y: 306}),
-        curve({x: 290, y: 306}, {x: 250, y: 306}, {x: 245, y: 295})
+        curve({x: 300, y: 218}, {x: 256, y: 196}, {x: 258, y: 244}),
+        curve({x: 258, y: 244}, {x: 302, y: 264}, {x: 288, y: 306}),
+        curve({x: 288, y: 306}, {x: 248, y: 306}, {x: 244, y: 296})
       ]),
+      // Var 1: Wie in "ist"
       () => makeGlyph([
-        curve({x: 302, y: 208}, {x: 252, y: 188}, {x: 258, y: 242}),
-        curve({x: 258, y: 242}, {x: 305, y: 262}, {x: 288, y: 304}),
-        curve({x: 288, y: 304}, {x: 248, y: 304}, {x: 242, y: 292})
+        curve({x: 298, y: 215}, {x: 254, y: 194}, {x: 256, y: 242}),
+        curve({x: 256, y: 242}, {x: 300, y: 262}, {x: 286, y: 304}),
+        curve({x: 286, y: 304}, {x: 246, y: 304}, {x: 242, y: 292})
+      ]),
+      // Var 2: Wie in "müssen"
+      () => makeGlyph([
+        curve({x: 302, y: 220}, {x: 258, y: 198}, {x: 260, y: 246}),
+        curve({x: 260, y: 246}, {x: 304, y: 266}, {x: 290, y: 306}),
+        curve({x: 290, y: 306}, {x: 250, y: 306}, {x: 246, y: 298})
       ])
     ]);
 
-    // 't'
+    // 't' (Wie in "hat", "theorie", "Tierart", "bestimmte" - Schaft mit Querstrich)
     createVariations('t', [
       () => makeGlyph([
-        line(275, 135, 275, 304),
-        curve({x: 275, y: 304}, {x: 280, y: 306}, {x: 295, y: 300}),
-        line(255, 205, 295, 205)
-      ], 75),
+        line(274, 142, 274, 303),
+        curve({x: 274, y: 303}, {x: 278, y: 306}, {x: 292, y: 300}),
+        line(254, 206, 296, 206)
+      ], 74),
       () => makeGlyph([
-        line(272, 130, 272, 303),
-        curve({x: 272, y: 303}, {x: 278, y: 305}, {x: 292, y: 298}),
-        line(252, 200, 292, 200)
-      ], 75)
+        line(272, 138, 272, 302),
+        curve({x: 272, y: 302}, {x: 276, y: 305}, {x: 290, y: 298}),
+        line(252, 202, 294, 202)
+      ], 74)
     ]);
 
-    // 'u'
+    // 'u' (Wie in "und", "zu", "unterschiedliche")
     createVariations('u', [
       () => makeGlyph([
-        line(255, 200, 255, 280),
-        curve({x: 255, y: 280}, {x: 255, y: 306}, {x: 285, y: 306}),
-        curve({x: 285, y: 306}, {x: 305, y: 306}, {x: 305, y: 280}),
-        line(305, 280, 305, 200),
-        line(305, 270, 305, 306)
+        line(254, 204, 254, 282),
+        curve({x: 254, y: 282}, {x: 254, y: 306}, {x: 282, y: 306}),
+        curve({x: 282, y: 306}, {x: 302, y: 306}, {x: 302, y: 282}),
+        line(302, 282, 302, 204),
+        line(302, 268, 302, 306)
       ]),
       () => makeGlyph([
-        line(252, 198, 252, 278),
-        curve({x: 252, y: 278}, {x: 252, y: 305}, {x: 282, y: 305}),
-        curve({x: 282, y: 305}, {x: 302, y: 305}, {x: 302, y: 278}),
-        line(302, 278, 302, 198),
-        line(302, 268, 302, 305)
+        line(252, 202, 252, 280),
+        curve({x: 252, y: 280}, {x: 252, y: 305}, {x: 280, y: 305}),
+        curve({x: 280, y: 305}, {x: 300, y: 305}, {x: 300, y: 280}),
+        line(300, 280, 300, 202),
+        line(300, 266, 300, 305)
       ])
     ]);
 
-    // 'v'
+    // 'v' (Wie in "Darvin", "von")
     createVariations('v', [
       () => makeGlyph([
-        line(255, 200, 280, 306),
-        line(280, 306, 305, 200)
+        line(254, 204, 278, 306),
+        line(278, 306, 304, 204)
       ]),
       () => makeGlyph([
-        line(252, 198, 278, 305),
-        line(278, 305, 302, 198)
+        line(252, 202, 276, 305),
+        line(276, 305, 302, 202)
       ])
     ]);
 
-    // 'w'
+    // 'w' (Wie in "wobei")
     createVariations('w', [
       () => makeGlyph([
-        line(240, 200, 260, 306),
-        line(260, 306, 280, 230),
-        line(280, 230, 300, 306),
-        line(300, 306, 320, 200)
-      ], 120),
-      () => makeGlyph([
-        line(238, 198, 258, 305),
-        line(258, 305, 278, 228),
-        line(278, 228, 298, 305),
-        line(298, 305, 318, 198)
-      ], 120)
+        line(240, 204, 258, 306),
+        line(258, 306, 278, 234),
+        line(278, 234, 298, 306),
+        line(298, 306, 318, 204)
+      ], 118)
     ]);
 
     // 'x'
     createVariations('x', [
       () => makeGlyph([
-        line(255, 200, 305, 306),
-        line(305, 200, 255, 306)
+        line(254, 204, 304, 306),
+        line(304, 204, 254, 306)
       ])
     ]);
 
-    // 'y' (Unterlänge!)
+    // 'y' (Wie in "Embryo" - Unterlänge nach links)
     createVariations('y', [
       () => makeGlyph([
-        line(255, 200, 280, 280),
-        line(305, 200, 250, 387)
-      ]),
-      () => makeGlyph([
-        line(252, 198, 278, 278),
-        line(302, 198, 248, 385)
+        line(254, 204, 278, 276),
+        line(304, 204, 252, 384)
       ])
     ]);
 
-    // 'z'
+    // 'z' (Wie in "zu", "Generation")
     createVariations('z', [
       () => makeGlyph([
-        line(255, 200, 305, 200),
-        line(305, 200, 255, 306),
-        line(255, 306, 305, 306)
-      ]),
-      () => makeGlyph([
-        line(252, 198, 302, 198),
-        line(302, 198, 252, 305),
-        line(252, 305, 302, 305)
+        line(254, 204, 302, 204),
+        line(302, 204, 254, 306),
+        line(254, 306, 304, 306)
       ])
     ]);
 
     // Deutsche Umlaute & ß
+    // 'ä' (Wie in "ändern", "ständige", "Säugetier")
     createVariations('ä', [
       () => makeGlyph([
-        curve({x: 310, y: 215}, {x: 245, y: 185}, {x: 245, y: 255}),
-        curve({x: 245, y: 255}, {x: 245, y: 306}, {x: 305, y: 306}),
-        line(305, 195, 305, 306),
-        line(265, 155, 265, 157),
-        line(290, 155, 290, 157)
+        curve({x: 296, y: 222}, {x: 246, y: 198}, {x: 242, y: 252}),
+        curve({x: 242, y: 252}, {x: 246, y: 306}, {x: 296, y: 306}),
+        line(296, 202, 296, 306),
+        line(264, 160, 264, 164),
+        line(288, 160, 288, 164)
       ])
     ]);
 
+    // 'ö' (Wie in "größer")
     createVariations('ö', [
       () => makeGlyph([
-        curve({x: 280, y: 192}, {x: 245, y: 192}, {x: 245, y: 250}),
-        curve({x: 245, y: 250}, {x: 245, y: 306}, {x: 280, y: 306}),
-        curve({x: 280, y: 306}, {x: 315, y: 306}, {x: 315, y: 250}),
-        curve({x: 315, y: 250}, {x: 315, y: 192}, {x: 280, y: 192}),
-        line(265, 155, 265, 157),
-        line(290, 155, 290, 157)
+        curve({x: 280, y: 196}, {x: 245, y: 196}, {x: 245, y: 252}),
+        curve({x: 245, y: 252}, {x: 245, y: 306}, {x: 280, y: 306}),
+        curve({x: 280, y: 306}, {x: 315, y: 306}, {x: 315, y: 252}),
+        curve({x: 315, y: 252}, {x: 315, y: 196}, {x: 280, y: 196}),
+        line(264, 160, 264, 164),
+        line(288, 160, 288, 164)
       ])
     ]);
 
+    // 'ü' (Wie in "überleben", "für", "Gegenüber", "müssen")
     createVariations('ü', [
       () => makeGlyph([
-        line(255, 200, 255, 280),
-        curve({x: 255, y: 280}, {x: 255, y: 306}, {x: 285, y: 306}),
-        curve({x: 285, y: 306}, {x: 305, y: 306}, {x: 305, y: 280}),
-        line(305, 280, 305, 200),
-        line(305, 270, 305, 306),
-        line(265, 155, 265, 157),
-        line(290, 155, 290, 157)
+        line(254, 204, 254, 282),
+        curve({x: 254, y: 282}, {x: 254, y: 306}, {x: 282, y: 306}),
+        curve({x: 282, y: 306}, {x: 302, y: 306}, {x: 302, y: 282}),
+        line(302, 282, 302, 204),
+        line(302, 268, 302, 306),
+        line(266, 160, 266, 164),
+        line(290, 160, 290, 164)
       ])
     ]);
 
+    // 'ß' (Wie in "größer")
     createVariations('ß', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        curve({x: 255, y: 115}, {x: 305, y: 115}, {x: 305, y: 175}),
-        curve({x: 305, y: 175}, {x: 275, y: 210}, {x: 255, y: 210}),
-        curve({x: 255, y: 210}, {x: 315, y: 225}, {x: 310, y: 285}),
-        curve({x: 310, y: 285}, {x: 285, y: 306}, {x: 255, y: 306})
+        line(254, 118, 254, 306),
+        curve({x: 254, y: 118}, {x: 300, y: 118}, {x: 300, y: 178}),
+        curve({x: 300, y: 178}, {x: 272, y: 215}, {x: 254, y: 215}),
+        curve({x: 254, y: 215}, {x: 312, y: 230}, {x: 306, y: 288}),
+        curve({x: 306, y: 288}, {x: 280, y: 306}, {x: 254, y: 306})
       ])
     ]);
 
-    // === GROSSBUCHSTABEN (A-Z) ===
-    createVariations('A', [
-      () => makeGlyph([
-        line(280, 115, 245, 306),
-        line(280, 115, 315, 306),
-        line(258, 235, 302, 235)
-      ], 115),
-      () => makeGlyph([
-        line(278, 110, 242, 305),
-        line(278, 110, 312, 305),
-        line(255, 232, 298, 232)
-      ], 115)
-    ]);
+    // =========================================================================
+    // GROSSBUCHSTABEN (Exakt wie in den hochgeladenen Bildern)
+    // =========================================================================
 
-    createVariations('B', [
-      () => makeGlyph([
-        line(255, 115, 255, 306),
-        curve({x: 255, y: 115}, {x: 310, y: 115}, {x: 310, y: 205}),
-        line(310, 205, 255, 205),
-        curve({x: 255, y: 205}, {x: 315, y: 205}, {x: 315, y: 306}),
-        line(315, 306, 255, 306)
-      ], 110)
-    ]);
-
-    createVariations('C', [
-      () => makeGlyph([
-        curve({x: 315, y: 135}, {x: 245, y: 115}, {x: 245, y: 210}),
-        curve({x: 245, y: 210}, {x: 245, y: 306}, {x: 315, y: 295})
-      ], 105)
-    ]);
-
+    // 'D' (Wie in "Darvin", "Daraus" - breiter Schwung)
     createVariations('D', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        curve({x: 255, y: 115}, {x: 320, y: 115}, {x: 320, y: 210}),
-        curve({x: 320, y: 210}, {x: 320, y: 306}, {x: 255, y: 306})
-      ], 115)
-    ]);
-
-    createVariations('E', [
+        line(254, 118, 254, 306),
+        curve({x: 254, y: 118}, {x: 324, y: 145}, {x: 326, y: 212}),
+        curve({x: 326, y: 212}, {x: 324, y: 306}, {x: 254, y: 306})
+      ], 116),
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        line(255, 115, 310, 115),
-        line(255, 210, 300, 210),
-        line(255, 306, 315, 306)
-      ], 105)
+        line(252, 115, 252, 305),
+        curve({x: 252, y: 115}, {x: 320, y: 142}, {x: 322, y: 210}),
+        curve({x: 322, y: 210}, {x: 320, y: 305}, {x: 252, y: 305})
+      ], 116)
     ]);
 
-    createVariations('F', [
+    // 'T' (Wie in "Tierart", "Tier" - klarer Balken oben, senkrechter Strich zentriert)
+    createVariations('T', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        line(255, 115, 310, 115),
-        line(255, 210, 298, 210)
-      ], 100)
+        line(242, 118, 318, 118),
+        line(280, 118, 280, 306)
+      ], 102),
+      () => makeGlyph([
+        line(240, 115, 316, 115),
+        line(278, 115, 278, 305)
+      ], 102)
     ]);
 
+    // 'V' (Wie in "Variationen", "Vermutung")
+    createVariations('V', [
+      () => makeGlyph([
+        line(250, 118, 280, 306),
+        line(280, 306, 312, 118)
+      ], 104),
+      () => makeGlyph([
+        line(248, 115, 278, 305),
+        line(278, 305, 310, 115)
+      ], 104)
+    ]);
+
+    // 'G' (Wie in "Generation", "Gegenüber")
     createVariations('G', [
       () => makeGlyph([
-        curve({x: 315, y: 135}, {x: 245, y: 115}, {x: 245, y: 210}),
-        curve({x: 245, y: 210}, {x: 245, y: 306}, {x: 315, y: 306}),
-        line(315, 306, 315, 240),
-        line(315, 240, 285, 240)
-      ], 115)
+        curve({x: 314, y: 138}, {x: 248, y: 118}, {x: 246, y: 212}),
+        curve({x: 246, y: 212}, {x: 248, y: 306}, {x: 314, y: 306}),
+        line(314, 306, 314, 242),
+        line(314, 242, 286, 242)
+      ], 116)
     ]);
 
-    createVariations('H', [
+    // 'M' (Wie in "Menschen", "Mensch")
+    createVariations('M', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        line(310, 115, 310, 306),
-        line(255, 210, 310, 210)
-      ], 110)
+        line(246, 306, 246, 118),
+        line(246, 118, 280, 242),
+        line(280, 242, 314, 118),
+        line(314, 118, 314, 306)
+      ], 128),
+      () => makeGlyph([
+        line(244, 305, 244, 115),
+        line(244, 115, 278, 240),
+        line(278, 240, 312, 115),
+        line(312, 115, 312, 305)
+      ], 128)
     ]);
 
-    createVariations('I', [
+    // 'A' (Wie in "Auf")
+    createVariations('A', [
       () => makeGlyph([
-        line(280, 115, 280, 306)
-      ], 60),
-      () => makeGlyph([
-        line(278, 110, 278, 305)
-      ], 60)
+        line(280, 118, 246, 306),
+        line(280, 118, 314, 306),
+        line(258, 236, 302, 236)
+      ], 114)
     ]);
 
+    // 'J' (Wie in "Jeder")
     createVariations('J', [
       () => makeGlyph([
-        line(290, 115, 290, 280),
-        curve({x: 290, y: 280}, {x: 290, y: 306}, {x: 260, y: 306}),
-        curve({x: 260, y: 306}, {x: 245, y: 300}, {x: 245, y: 275})
-      ], 80)
+        line(292, 118, 292, 280),
+        curve({x: 292, y: 280}, {x: 292, y: 306}, {x: 262, y: 306}),
+        curve({x: 262, y: 306}, {x: 246, y: 298}, {x: 246, y: 275})
+      ], 84)
     ]);
 
-    createVariations('K', [
+    // 'S' (Wie in "Sind", "Strucktur", "Säugetier")
+    createVariations('S', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        line(310, 125, 258, 215),
-        line(258, 215, 315, 306)
+        curve({x: 312, y: 140}, {x: 256, y: 118}, {x: 260, y: 198}),
+        curve({x: 260, y: 198}, {x: 312, y: 222}, {x: 298, y: 306}),
+        curve({x: 298, y: 306}, {x: 246, y: 306}, {x: 244, y: 282})
+      ], 106)
+    ]);
+
+    // 'U' (Wie in "Urzeugers")
+    createVariations('U', [
+      () => makeGlyph([
+        line(254, 118, 254, 276),
+        curve({x: 254, y: 276}, {x: 254, y: 306}, {x: 284, y: 306}),
+        curve({x: 284, y: 306}, {x: 310, y: 306}, {x: 310, y: 276}),
+        line(310, 276, 310, 118)
       ], 110)
     ]);
 
+    // 'E' (Wie in "Embryo")
+    createVariations('E', [
+      () => makeGlyph([
+        line(254, 118, 254, 306),
+        line(254, 118, 308, 118),
+        line(254, 212, 298, 212),
+        line(254, 306, 312, 306)
+      ], 104)
+    ]);
+
+    // 'C' (Wie in "Chancen")
+    createVariations('C', [
+      () => makeGlyph([
+        curve({x: 312, y: 136}, {x: 246, y: 118}, {x: 246, y: 212}),
+        curve({x: 246, y: 212}, {x: 246, y: 306}, {x: 314, y: 295})
+      ], 104)
+    ]);
+
+    // 'B'
+    createVariations('B', [
+      () => makeGlyph([
+        line(254, 118, 254, 306),
+        curve({x: 254, y: 118}, {x: 308, y: 118}, {x: 308, y: 206}),
+        line(308, 206, 254, 206),
+        curve({x: 254, y: 206}, {x: 314, y: 206}, {x: 314, y: 306}),
+        line(314, 306, 254, 306)
+      ], 110)
+    ]);
+
+    // 'F'
+    createVariations('F', [
+      () => makeGlyph([
+        line(254, 118, 254, 306),
+        line(254, 118, 308, 118),
+        line(254, 212, 296, 212)
+      ], 98)
+    ]);
+
+    // 'H'
+    createVariations('H', [
+      () => makeGlyph([
+        line(254, 118, 254, 306),
+        line(308, 118, 308, 306),
+        line(254, 212, 308, 212)
+      ], 110)
+    ]);
+
+    // 'I'
+    createVariations('I', [
+      () => makeGlyph([
+        line(278, 118, 278, 306)
+      ], 58)
+    ]);
+
+    // 'K'
+    createVariations('K', [
+      () => makeGlyph([
+        line(254, 118, 254, 306),
+        line(308, 128, 258, 218),
+        line(258, 218, 312, 306)
+      ], 110)
+    ]);
+
+    // 'L'
     createVariations('L', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        line(255, 306, 310, 306)
+        line(254, 118, 254, 306),
+        line(254, 306, 308, 306)
       ], 95)
     ]);
 
-    createVariations('M', [
-      () => makeGlyph([
-        line(245, 306, 245, 115),
-        line(245, 115, 280, 250),
-        line(280, 250, 315, 115),
-        line(315, 115, 315, 306)
-      ], 130),
-      () => makeGlyph([
-        line(242, 305, 242, 110),
-        line(242, 110, 278, 248),
-        line(278, 248, 312, 110),
-        line(312, 110, 312, 305)
-      ], 130)
-    ]);
-
+    // 'N'
     createVariations('N', [
       () => makeGlyph([
-        line(255, 306, 255, 115),
-        line(255, 115, 310, 306),
-        line(310, 306, 310, 115)
-      ], 115)
+        line(254, 306, 254, 118),
+        line(254, 118, 308, 306),
+        line(308, 306, 308, 118)
+      ], 114)
     ]);
 
+    // 'O'
     createVariations('O', [
       () => makeGlyph([
-        curve({x: 280, y: 115}, {x: 245, y: 115}, {x: 245, y: 210}),
-        curve({x: 245, y: 210}, {x: 245, y: 306}, {x: 280, y: 306}),
-        curve({x: 280, y: 306}, {x: 315, y: 306}, {x: 315, y: 210}),
-        curve({x: 315, y: 210}, {x: 315, y: 115}, {x: 280, y: 115})
+        curve({x: 280, y: 118}, {x: 245, y: 118}, {x: 245, y: 212}),
+        curve({x: 245, y: 212}, {x: 245, y: 306}, {x: 280, y: 306}),
+        curve({x: 280, y: 306}, {x: 315, y: 306}, {x: 315, y: 212}),
+        curve({x: 315, y: 212}, {x: 315, y: 118}, {x: 280, y: 118})
       ], 115)
     ]);
 
+    // 'P'
     createVariations('P', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        curve({x: 255, y: 115}, {x: 315, y: 115}, {x: 315, y: 205}),
-        line(315, 205, 255, 205)
-      ], 105)
+        line(254, 118, 254, 306),
+        curve({x: 254, y: 118}, {x: 312, y: 118}, {x: 312, y: 206}),
+        line(312, 206, 254, 206)
+      ], 104)
     ]);
 
+    // 'Q'
     createVariations('Q', [
       () => makeGlyph([
-        curve({x: 280, y: 115}, {x: 245, y: 115}, {x: 245, y: 210}),
-        curve({x: 245, y: 210}, {x: 245, y: 306}, {x: 280, y: 306}),
-        curve({x: 280, y: 306}, {x: 315, y: 306}, {x: 315, y: 210}),
-        curve({x: 315, y: 210}, {x: 315, y: 115}, {x: 280, y: 115}),
-        line(290, 275, 320, 320)
+        curve({x: 280, y: 118}, {x: 245, y: 118}, {x: 245, y: 212}),
+        curve({x: 245, y: 212}, {x: 245, y: 306}, {x: 280, y: 306}),
+        curve({x: 280, y: 306}, {x: 315, y: 306}, {x: 315, y: 212}),
+        curve({x: 315, y: 212}, {x: 315, y: 118}, {x: 280, y: 118}),
+        line(290, 276, 318, 320)
       ], 115)
     ]);
 
+    // 'R'
     createVariations('R', [
       () => makeGlyph([
-        line(255, 115, 255, 306),
-        curve({x: 255, y: 115}, {x: 315, y: 115}, {x: 315, y: 205}),
-        line(315, 205, 255, 205),
-        line(285, 205, 315, 306)
+        line(254, 118, 254, 306),
+        curve({x: 254, y: 118}, {x: 312, y: 118}, {x: 312, y: 206}),
+        line(312, 206, 254, 206),
+        line(284, 206, 314, 306)
       ], 110)
     ]);
 
-    createVariations('S', [
-      () => makeGlyph([
-        curve({x: 315, y: 140}, {x: 255, y: 115}, {x: 260, y: 195}),
-        curve({x: 260, y: 195}, {x: 315, y: 220}, {x: 300, y: 306}),
-        curve({x: 300, y: 306}, {x: 245, y: 306}, {x: 245, y: 280})
-      ], 105)
-    ]);
-
-    createVariations('T', [
-      () => makeGlyph([
-        line(245, 115, 315, 115),
-        line(280, 115, 280, 306)
-      ], 100)
-    ]);
-
-    createVariations('U', [
-      () => makeGlyph([
-        line(255, 115, 255, 275),
-        curve({x: 255, y: 275}, {x: 255, y: 306}, {x: 285, y: 306}),
-        curve({x: 285, y: 306}, {x: 310, y: 306}, {x: 310, y: 275}),
-        line(310, 275, 310, 115)
-      ], 110)
-    ]);
-
-    createVariations('V', [
-      () => makeGlyph([
-        line(250, 115, 280, 306),
-        line(280, 306, 310, 115)
-      ], 100)
-    ]);
-
+    // 'W'
     createVariations('W', [
       () => makeGlyph([
-        line(240, 115, 260, 306),
-        line(260, 306, 280, 175),
-        line(280, 175, 300, 306),
-        line(300, 306, 320, 115)
-      ], 130)
+        line(240, 118, 260, 306),
+        line(260, 306, 280, 176),
+        line(280, 176, 300, 306),
+        line(300, 306, 320, 118)
+      ], 128)
     ]);
 
+    // 'X'
     createVariations('X', [
       () => makeGlyph([
-        line(250, 115, 310, 306),
-        line(310, 115, 250, 306)
+        line(250, 118, 310, 306),
+        line(310, 118, 250, 306)
       ], 100)
     ]);
 
+    // 'Y'
     createVariations('Y', [
       () => makeGlyph([
-        line(250, 115, 280, 215),
-        line(310, 115, 280, 215),
-        line(280, 215, 280, 306)
+        line(250, 118, 280, 216),
+        line(310, 118, 280, 216),
+        line(280, 216, 280, 306)
       ], 100)
     ]);
 
+    // 'Z'
     createVariations('Z', [
       () => makeGlyph([
-        line(250, 115, 310, 115),
-        line(310, 115, 250, 306),
+        line(250, 118, 310, 118),
+        line(310, 118, 250, 306),
         line(250, 306, 310, 306)
       ], 100)
     ]);
 
-    // Ziffern 0-9
-    createVariations('0', [
+    // =========================================================================
+    // ZIFFERN 0-9 & SATZZEICHEN
+    // =========================================================================
+
+    // '3' (Wie in "3)" im Bild)
+    createVariations('3', [
       () => makeGlyph([
-        curve({x: 280, y: 115}, {x: 250, y: 115}, {x: 250, y: 210}),
-        curve({x: 250, y: 210}, {x: 250, y: 306}, {x: 280, y: 306}),
-        curve({x: 280, y: 306}, {x: 310, y: 306}, {x: 310, y: 210}),
-        curve({x: 310, y: 210}, {x: 310, y: 115}, {x: 280, y: 115})
-      ], 100)
+        line(254, 118, 304, 118),
+        curve({x: 304, y: 118}, {x: 278, y: 196}, {x: 264, y: 196}),
+        curve({x: 264, y: 196}, {x: 312, y: 216}, {x: 294, y: 306}),
+        curve({x: 294, y: 306}, {x: 250, y: 306}, {x: 244, y: 286})
+      ], 94)
     ]);
 
+    // ')' (Wie in "3)" und "(Embryo)")
+    createVariations(')', [
+      () => makeGlyph([
+        curve({x: 264, y: 118}, {x: 296, y: 212}, {x: 264, y: 306})
+      ], 56)
+    ]);
+
+    // '(' (Wie in "(das Embryo)")
+    createVariations('(', [
+      () => makeGlyph([
+        curve({x: 296, y: 118}, {x: 264, y: 212}, {x: 296, y: 306})
+      ], 56)
+    ]);
+
+    // '.' (Punkt)
+    createVariations('.', [
+      () => makeGlyph([
+        line(278, 298, 278, 306)
+      ], 46),
+      () => makeGlyph([
+        line(280, 297, 280, 305)
+      ], 46)
+    ]);
+
+    // ',' (Komma)
+    createVariations(',', [
+      () => makeGlyph([
+        line(278, 296, 278, 306),
+        curve({x: 278, y: 306}, {x: 276, y: 318}, {x: 270, y: 326})
+      ], 48)
+    ]);
+
+    // '-' (Bindestrich)
+    createVariations('-', [
+      () => makeGlyph([
+        line(258, 252, 298, 252)
+      ], 65)
+    ]);
+
+    // '1'
     createVariations('1', [
       () => makeGlyph([
-        line(265, 145, 280, 115),
-        line(280, 115, 280, 306),
-        line(260, 306, 300, 306)
+        line(265, 146, 278, 118),
+        line(278, 118, 278, 306),
+        line(258, 306, 298, 306)
       ], 80)
     ]);
 
+    // '2'
     createVariations('2', [
       () => makeGlyph([
-        curve({x: 255, y: 145}, {x: 280, y: 115}, {x: 305, y: 155}),
-        line(305, 155, 255, 306),
-        line(255, 306, 308, 306)
-      ], 95)
+        curve({x: 254, y: 146}, {x: 278, y: 118}, {x: 304, y: 156}),
+        line(304, 156, 254, 306),
+        line(254, 306, 306, 306)
+      ], 94)
     ]);
 
-    createVariations('3', [
+    // '0'
+    createVariations('0', [
       () => makeGlyph([
-        line(255, 115, 305, 115),
-        curve({x: 305, y: 115}, {x: 280, y: 195}, {x: 265, y: 195}),
-        curve({x: 265, y: 195}, {x: 315, y: 215}, {x: 295, y: 306}),
-        curve({x: 295, y: 306}, {x: 250, y: 306}, {x: 245, y: 285})
-      ], 95)
-    ]);
-
-    // Satzzeichen
-    createVariations('.', [
-      () => makeGlyph([
-        line(280, 298, 280, 306)
-      ], 50),
-      () => makeGlyph([
-        line(282, 297, 282, 305)
-      ], 50)
-    ]);
-
-    createVariations(',', [
-      () => makeGlyph([
-        line(280, 295, 280, 305),
-        curve({x: 280, y: 305}, {x: 278, y: 318}, {x: 272, y: 325})
-      ], 50)
-    ]);
-
-    createVariations('!', [
-      () => makeGlyph([
-        line(280, 115, 280, 260),
-        line(280, 298, 280, 306)
-      ], 60)
-    ]);
-
-    createVariations('?', [
-      () => makeGlyph([
-        curve({x: 255, y: 140}, {x: 280, y: 115}, {x: 305, y: 150}),
-        curve({x: 305, y: 150}, {x: 300, y: 200}, {x: 280, y: 220}),
-        line(280, 220, 280, 255),
-        line(280, 298, 280, 306)
-      ], 85)
-    ]);
-
-    createVariations('-', [
-      () => makeGlyph([
-        line(260, 250, 300, 250)
-      ], 70),
-      () => makeGlyph([
-        line(258, 248, 302, 252)
-      ], 70)
+        curve({x: 280, y: 118}, {x: 250, y: 118}, {x: 250, y: 212}),
+        curve({x: 250, y: 212}, {x: 250, y: 306}, {x: 280, y: 306}),
+        curve({x: 280, y: 306}, {x: 310, y: 306}, {x: 310, y: 212}),
+        curve({x: 310, y: 212}, {x: 310, y: 118}, {x: 280, y: 118})
+      ], 98)
     ]);
 
     return profile;

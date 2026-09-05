@@ -84,10 +84,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   const fileImportProfile = document.getElementById('file-import-profile');
   const toastEl = document.getElementById('toast');
 
-  // Wenn noch keine Glyphen gespeichert sind: Beispiel-Handschrift vorschlagen oder direkt laden
-  if (store.getTotalRecordedCharsCount() === 0) {
-    loadSampleFont(false);
+  // Wenn noch keine Glyphen gespeichert sind oder altes Profil: Neue GoodNotes Handschrift laden
+  if (store.getTotalRecordedCharsCount() === 0 || store.profileMeta.name === 'Natürliche Schreibschrift (Beispiel)') {
+    await loadSampleFont(false);
   }
+
+  // Standard-Einstellungen passend zum GoodNotes iPad-Stil setzen
+  renderer.setOptions({
+    paperStyle: 'dark-grid',
+    penColor: '#22c55e',
+    fontSize: 27,
+    lineHeight: 44,
+    neatness: 75
+  });
 
   // ================= TABS =================
   tabBtns.forEach(btn => {
@@ -376,10 +385,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // ================= TAB 2: TEXT-ZU-HANDSCHRIFT GENERATOR =================
-  const defaultText = `Hallo! Dies ist meine ganz persönliche Handschrift.
-Für jeden Buchstaben habe ich mehrere Variationen gezeichnet.
-Wenn ich ein Wort wie „Banane“ oder „Mama“ schreibe, wird jedes Mal eine andere Variante des Buchstabens ausgewählt!
-Dadurch sieht der Text täuschend echt aus wie von Hand geschrieben – mit leichten, natürlichen Schwingungen auf der Linie.`;
+  const defaultText = `3) Darwin hat die theorie das jede Tierart unterschiedliche Variationen haben und das sich bestimmte Variationen zu jeder Generation ändern.
+Diese ständige änderungen von eigenschaften ist bei jedem Tier für sein überleben notwendig, da alle Tiere sich an seine Gegenüber ebenfalls anpassen müssen.
+Auf den Menschen trifft das ebenfalls zu. Jeder Mensch hat unterschiedliche Variationen, manche sind größer manche sind kleiner, wobei die grundlegene Strucktur (das Embryo) bei jedem Säugetier gleich bleit.
+Daraus stellt er die Vermutung auf dass jedes (Säuge-) tier von einem sehr alten Urzeugers abstammen muss.`;
 
   inputText.value = defaultText;
 

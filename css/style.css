@@ -878,7 +878,7 @@ body {
 /* Paper Presets */
 .paper-presets {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 
@@ -910,6 +910,13 @@ body {
   border-radius: 2px;
   border: 1px solid #ccc;
   background: #fff;
+}
+
+.mini-dark-grid {
+  background-color: #0e1117;
+  background-image: linear-gradient(#1e2633 1px, transparent 1px), linear-gradient(90deg, #1e2633 1px, transparent 1px);
+  background-size: 6px 6px;
+  border-color: #2b3a51;
 }
 
 .mini-lined {
